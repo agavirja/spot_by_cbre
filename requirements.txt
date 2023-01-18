@@ -11,3 +11,4 @@ SQLAlchemy==1.4.39
 streamlit==1.14.0
 streamlit_folium==0.6.15
 tqdm==4.64.0
+openpyxl==3.0.10
