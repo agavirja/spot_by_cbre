@@ -18,13 +18,14 @@ password = st.secrets["password"]
 host     = st.secrets["host"]
 schema   = st.secrets["schema"]
 
-
+@st.experimental_memo
 def get_list():
     db_connection = sql.connect(user=user, password=password, host=host, database=schema)
     data          = pd.read_sql("SELECT id as id_project,project,city,address FROM proyect.cbre_proyecto  WHERE activo=1" , con=db_connection)
     data          = data.sort_values(by='project',ascending=True)
     return data
 
+@st.experimental_memo
 def get_clients(city):
     consulta = "office_point=1"
     if city!="":
@@ -35,6 +36,7 @@ def get_clients(city):
     data          = data.sort_values(by='client',ascending=True)
     return data
 
+@st.experimental_memo
 def get_timetravel(cliente,id_project):
     consulta = ""
     if cliente!="" and cliente is not None:
@@ -49,6 +51,7 @@ def get_timetravel(cliente,id_project):
     data          = pd.read_sql(f"SELECT * FROM proyect.cbre_direcciones WHERE {consulta} " , con=db_connection)
     return data
 
+@st.experimental_memo
 def get_timetravel_by_client(cliente):
     consulta = ""
     if cliente!="" and cliente is not None:
@@ -58,6 +61,7 @@ def get_timetravel_by_client(cliente):
     data          = pd.read_sql(f"SELECT id_proyecto as id_project ,tiempo_regreso,tiempo_ida FROM proyect.cbre_direcciones WHERE {consulta}  AND office_point=0" , con=db_connection)
     return data
 
+@st.experimental_memo
 def get_shp_file():
     #gdf = gpd.read_file(r'D:\Dropbox\Empresa\Consultoria Data\CBRE\PROYECTO DIRECCIONES\barrios colombia\barrios_colombia.shp')
     gdf = gpd.read_file(r'data/barrios_colombia.shp')
