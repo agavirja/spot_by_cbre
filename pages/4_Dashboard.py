@@ -68,8 +68,7 @@ def get_shp_file():
 #-----------------------------------------------------------------------------#
 col1, col2, col3, col4 = st.columns(4)
 with col4:
-    st.text('Refrescar información')
-    if st.button('Refrescar'):
+    if st.button('Refrescar información'):
         st.experimental_memo.clear()
         st.experimental_rerun()  
         
