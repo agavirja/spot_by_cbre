@@ -2,8 +2,6 @@ import streamlit as st
 import folium
 from streamlit_folium import st_folium
 import altair as alt
-import matplotlib.colors as mcolors
-import matplotlib.pyplot as plt
 import geopandas as gpd
 
 import pandas as pd
@@ -68,9 +66,14 @@ def get_shp_file():
     return gdf
 
 #-----------------------------------------------------------------------------#
-
 col1, col2, col3, col4 = st.columns(4)
-
+with col4:
+    st.text('Refrescar información')
+    if st.button('Refrescar'):
+        st.experimental_memo.clear()
+        st.experimental_rerun()  
+        
+col1, col2, col3, col4 = st.columns(4)
 with col1:
     data_project = get_list()
     ciudad       = st.selectbox(label='Ciudad',options=sorted(data_project['city'].unique()))
@@ -288,4 +291,3 @@ with col3:
         )
         
         st.altair_chart(chart)
-        

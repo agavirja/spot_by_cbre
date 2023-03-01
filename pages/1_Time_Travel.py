@@ -22,6 +22,7 @@ password = st.secrets["password"]
 host     = st.secrets["host"]
 schema   = st.secrets["schema"]
 
+@st.experimental_memo
 def get_list():
     db_connection = sql.connect(user=user, password=password, host=host, database=schema)
     data          = pd.read_sql("SELECT id as id_project,project,city,address FROM proyect.cbre_proyecto WHERE activo=1" , con=db_connection)
