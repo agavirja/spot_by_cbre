@@ -65,6 +65,26 @@ def get_shp_file():
     gdf = gpd.read_file(r'data/barrios_colombia.shp')
     return gdf
 
+background_image_css = '''
+<style>
+.background-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-image: url('https://s3.us-east-2.amazonaws.com/beyondcbre.co/Background-georreferenciacion.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+</style>
+'''
+
+st.markdown(background_image_css, unsafe_allow_html=True)
+st.markdown('<div class="background-image"></div>', unsafe_allow_html=True)
+
 #-----------------------------------------------------------------------------#
 col1, col2, col3, col4 = st.columns(4)
 with col4:

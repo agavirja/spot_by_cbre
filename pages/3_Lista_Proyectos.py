@@ -133,7 +133,7 @@ with st.container():
         
         col1, col2 = st.columns(2)
         with col1:
-            edit_button = st.button('Editar')
+            edit_button = st.button('Editar proyecto')
 
         with col2:
             delete_button = st.button('Eliminar proyecto')
@@ -193,6 +193,3 @@ with st.container():
                 cursor.execute(f"""UPDATE `proyect`.`cbre_proyecto` SET `activo` = '0'  WHERE (`project` = '{nombre_proyecto}'); """)
                 db_connection.commit()
                 st.success("Elininado exitosamente")
-            
-    
-    
