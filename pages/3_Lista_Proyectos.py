@@ -130,7 +130,7 @@ with st.container():
     if response['selected_rows']:
         st.write(response['selected_rows'])
         try:
-            st.write(response['selected_rows']['Proyecto'])
+            st.write(response['selected_rows'][0]['Proyecto'])
         except: pass
             
             
