@@ -22,7 +22,7 @@ password = st.secrets["password"]
 host     = st.secrets["host"]
 schema   = st.secrets["schema"]
 
-@st.experimental_memo
+#@st.experimental_memo
 def get_list():
     db_connection = sql.connect(user=user, password=password, host=host, database=schema)
     data          = pd.read_sql("SELECT id as id_project,project,city,address FROM proyect.cbre_proyecto WHERE activo=1" , con=db_connection)
@@ -35,6 +35,7 @@ def analysis(data,id_project,email,client,nit):
     
     db_connection   = sql.connect(user=user, password=password, host=host, database=schema)
     dataproject     = pd.read_sql(f"SELECT id as id_proyecto,project,city,address,latitud,longitud,scacodigo,barriocatastral FROM proyect.cbre_proyecto WHERE id='{id_project}' AND activo=1" , con=db_connection)
+    data.columns    = [x.lower().strip() for x in list(data)]
     data            = data[data['address'].notnull()]
     data['origen']  = data['address'].apply(lambda x: formato_direccion(x))
     data['origen']  = data['origen']+','+data['city']+',colombia'
@@ -212,7 +213,7 @@ def prefijo(x):
             break
     return result
 
-@st.cache
+#@st.cache
 def convert_df(df):
     return df.to_csv(index=False).encode('utf-8')
 
