@@ -67,7 +67,7 @@ def get_shp_file():
 
 def add_bg_from_url():
     st.markdown(
-         """
+         f"""
          <style>
          .stApp {{
              background-image: url("https://s3.us-east-2.amazonaws.com/beyondcbre.co/Background-georreferenciacion.png");
@@ -80,8 +80,6 @@ def add_bg_from_url():
      )
 
 add_bg_from_url() 
-
-
 
 #-----------------------------------------------------------------------------#
 col1, col2, col3, col4 = st.columns(4)
