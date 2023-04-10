@@ -118,7 +118,8 @@ with col1:
     data_points["color"] = pd.cut(data_points["tiempo_regreso"], bins=[0,10,30,60,300], labels=["#012A2D", "#80BBAD", "#DBD99A","#D1785C"])
     data_points["label"] = pd.cut(data_points["tiempo_regreso"], bins=[0,10,30,60,300], labels=["0-10 min", "10-30 min", "30-60 min","60 > min"])
     data_points["order"] = pd.cut(data_points["tiempo_regreso"], bins=[0,10,30,60,300], labels=["1", "2", "3","4"])
-
+    data_points          = data_points[(data_points['latitud'].notnull()) & (data_points['longitud'].notnull())]
+    data_points          = data_points[data_points[tipo_analisis]>=0]
     data_point_office = data_traveltime[data_traveltime['office_point']==1]
     
     m = folium.Map(location=[data_traveltime["latitud"].mean(), data_traveltime["longitud"].mean()], zoom_start=11,tiles="cartodbpositron")
