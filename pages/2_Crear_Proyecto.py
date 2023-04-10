@@ -7,8 +7,9 @@ import pytz
 import mysql.connector as sql
 import datetime
 import random
-import warnings
-warnings.filterwarnings("ignore")
+import streamlit.components.v1 as components
+#import warnings
+#warnings.filterwarnings("ignore")
 
 st.set_page_config(layout="wide")
 
@@ -121,8 +122,241 @@ def prefijo(x):
 #-----------------------------------------------------------------------------#
 
 
-col1, col2, col3, col4 = st.columns([1,4,4,1])
-with col3:
+col1, col2 = st.columns(2)
+with col1: 
+    components.html("""
+    <!DOCTYPE html>
+    <html>
+
+    <head>
+      <title>Medición de distancias</title>
+      <meta charset="UTF-8">
+
+      <!-- CSS only -->
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    </head>
+
+    <body>
+      <div id="app">
+        <img id="logo" src="https://traveltimeproject-cbre-website.s3.us-east-2.amazonaws.com/CBRE_logo_white_BG.png"
+          alt="CBRE">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="row" id="title">
+                <h1>Crear proyecto en el aplicativo</h1>
+                <hr />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script src="https://unpkg.com/vue@1.0.28/dist/vue.js"></script>
+      <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+      <!-- JavaScript Bundle with Popper -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+        crossorigin="anonymous"></script>
+      <script>
+        const MAX_IMAGE_SIZE = 1000000
+
+        /* ENTER YOUR ENDPOINT HERE */
+
+        new Vue({
+          el: "#app",
+          data: {
+            file: '',
+            uploadURL: '',
+            projects: {},
+            darkGreen: "#003F2D"
+          },
+          created: async function () {
+            console.log("Renderizado al comienzo")
+            const response = await axios({
+                method:'POST',
+                url:'https://h9qoq467cl.execute-api.us-east-2.amazonaws.com/default/getProjectsCBRE'})
+                projects = response.data
+                projects.forEach(element => {
+                  opt = document.createElement("option");
+                  opt.innerHTML =element.address
+                  opt.value = element.project
+                  document.getElementById("projectsList").appendChild(opt)
+                });
+              
+          },
+          methods: {
+            clickDowloadTemplate(e){
+              document.getElementById("downloadTempalte").style.backgroundColor="#80BBAD"
+              document.getElementById("downloadTempalte").style.borderColor="#80BBAD"
+            },
+            onProjectChange(e){
+              valor = document.getElementById("project").value
+              result= projects.filter( proj => proj.project === valor)
+              document.getElementById("city").value = result[0].city
+              document.getElementById("address").value = result[0].address
+              
+            },
+            onFileChange(e) {
+              let files = e.target.files || e.dataTransfer.files
+              if (!files.length) return
+              this.createFile(files[0])
+            },
+            createFile(file) {
+              // var image = new Image()
+              let reader = new FileReader()
+              reader.onload = (e) => {
+                if (!e.target.result.includes('data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+                  return alert('Wrong file type - Excel 2007 o superior')
+                }
+                if (e.target.result.length > MAX_IMAGE_SIZE) {
+                  return alert('File is loo large.')
+                }
+                this.file = e.target.result
+              }
+              reader.readAsDataURL(file)
+            },
+            uploadFile: async function (e) {
+              // Style
+              document.getElementById("submitButton").disabled= true
+              message = document.createElement("h5")
+              message.innerHTML = "Cargando archivo... Por favor espere un momento"
+              message.style.color ="#003F2D"
+              parent = document.getElementById("formSection").appendChild(message);
+
+              document.getElementById("submitButton").style.backgroundColor="#80BBAD"
+              document.getElementById("submitButton").style.borderColor="#80BBAD"
+              // Get the presigned URL
+              const response = await axios({
+                method:'POST',
+                url:'https://h9qoq467cl.execute-api.us-east-2.amazonaws.com/default/uploadAddressesCBRE',
+                data: JSON.stringify({
+                  'project': document.getElementById("project").value,
+                  'city': document.getElementById("city").value,
+                  'address': document.getElementById("address").value,
+                  'customer': document.getElementById("customer").value,
+                  'email': document.getElementById("email").value,
+                  'nit': document.getElementById("nit").value
+                })
+              })
+              console.log(response)
+              let binary = atob(this.file.split(',')[1])
+              let array = []
+              for (var i = 0; i < binary.length; i++) {
+                array.push(binary.charCodeAt(i))
+              }
+              let blobData = new Blob([new Uint8Array(array)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+              const result = await fetch(response.data.url, {
+                method: 'PUT',
+                body: blobData,
+                headers: {
+                  'x-amz-meta-customer': document.getElementById("customer").value,
+                  'x-amz-meta-email': document.getElementById("email").value,
+                  'x-amz-meta-nit': document.getElementById("nit").value,
+                  'x-amz-meta-project': document.getElementById("project").value,
+                }
+              }).then( x => {
+                if(response.status===200){
+                  alert("El archivo se ha enviado correctamente. Pronto recibira los resultados en su correo.");
+                }
+                else{
+                  alert("Oops ha habido un problema. Por favor refresque el navegador y cargue el archivo de nuevo.");
+                }
+              })
+            }
+          }
+        })
+      </script>
+      <style type="text/css">
+        body {
+          background: #ffffff;
+          padding: 20px;
+        }
+
+        button {
+          color: #80BBAD;
+        }
+
+        h1 {
+          font-size: 2rem;
+          color: #17E88F;
+          margin-bottom: 2rem;
+        }
+
+        h2 {
+          font-size: 1.5rem;
+          font-weight: bold;
+          margin-bottom: 15px;
+        }
+
+        hr {
+          width: 60% !important;
+          height: 5px;
+          background-color: #003F2D;
+          border: 0 none;
+          opacity: 1;
+          margin-bottom: 2rem;
+        }
+
+        a {
+          color: #42b983;
+        }
+
+        .form-label {
+          margin-bottom: 0rem;
+        }
+
+        .btn-primary,
+        .btn-primary:hover,
+        .btn-primary:active,
+        .btn-primary:visited {
+          border-color: #003F2D ;
+          background-color: #003F2D ;
+        }
+        
+
+        #title {
+          margin-top: 3rem;
+        }
+
+        #formSection {
+          background-image: url("https://traveltimeproject-cbre-website.s3.us-east-2.amazonaws.com/FONDO-CUADRITO.jpg");
+          background-size: cover;
+          padding-top: 4.5rem;
+          padding-left: 5rem;
+          padding-right: 5rem;
+          padding-bottom: 4.5rem;
+        }
+
+        #dashboarButton{
+          margin-top: 140px;
+          width: 150px;
+          border-color: #003F2D !important;
+          background-color: #003F2D !important;
+        }
+
+
+        #templateDownload{
+          width: 170px;
+          border-color: #003F2D !important;
+          background-color: #003F2D !important;
+        }
+        
+
+        #dataForm {
+          margin-left: 50%;
+        }
+
+        #logo {
+          height: 50px;
+        }
+      </style>
+    </body>
+
+    </html>
+    """,height=600)
+    
+with col2:
     ciudad_registro            = st.selectbox('Ciudad ',options=['Bogota'])
     nombre_proyecto_registro   = st.text_input('Nombre del proyecto ',value="")
     direccion_oficina_registro = st.text_input('Dirección del proyecto ',value="")
