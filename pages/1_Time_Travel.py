@@ -218,6 +218,19 @@ def prefijo(x):
 def convert_df(df):
     return df.to_csv(index=False).encode('utf-8')
 
+def add_bg_from_url():
+    st.markdown(
+         """
+         <style>
+         .stApp {{
+             background-image: url("https://s3.us-east-2.amazonaws.com/beyondcbre.co/Background-cuadro-front.png");
+             background-attachment: fixed;
+             background-size: cover
+         }}
+         </style>
+         """,
+         unsafe_allow_html=True
+     )
 #-----------------------------------------------------------------------------#
 
 
@@ -516,6 +529,7 @@ with col1:
     """,height=600)
     
 with col2:
+    add_bg_from_url() 
     dataproyectos   = get_list()
     nombre_cliente  = st.text_input('Nombre del cliente',value="")
     nombre_proyecto = st.multiselect('Nombre del proyecto',options=dataproyectos['project'].to_list())    
