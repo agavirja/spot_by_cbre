@@ -121,12 +121,15 @@ with st.container():
         enable_enterprise_modules=False,
         update_mode=GridUpdateMode.MODEL_CHANGED,
         data_return_mode=DataReturnMode.FILTERED_AND_SORTED,
-        fit_columns_on_grid_load=True,
+        fit_columns_on_grid_load=False,
         header_checkbox_selection_filtered_only=False,
-        use_checkbox=True)
-
+        use_checkbox=True,
+        allow_unsafe_jscode=True,  # Asegúrate de permitir JavaScript inseguro para permitir el redimensionamiento automático de las columnas
+        key="unique_key",
+    )
     if response['selected_rows']:
-        print(response['selected_rows']['project'])
+        for i in response['selected_rows']:
+            print(i['Proyecto'])
             
             
             
