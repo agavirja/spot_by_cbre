@@ -221,7 +221,7 @@ def convert_df(df):
 #-----------------------------------------------------------------------------#
 
 
-col1, col2, col3, col4 = st.columns([1,4,4,1])
+col1, col2 = st.columns(2)
 with col1: 
     components.html("""
     <!DOCTYPE html>
@@ -515,7 +515,7 @@ with col1:
     </html>
     """,height=600)
     
-with col3:
+with col2:
     dataproyectos   = get_list()
     nombre_cliente  = st.text_input('Nombre del cliente',value="")
     nombre_proyecto = st.multiselect('Nombre del proyecto',options=dataproyectos['project'].to_list())    
