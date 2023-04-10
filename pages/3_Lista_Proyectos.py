@@ -108,12 +108,34 @@ with st.container():
     dataproyectos.index = range(len(dataproyectos))
     #st.dataframe(data=dataproyectos)
     
+    dataproyectos['Borrar'] = 'Borrar'
+    delete_function = '''
+    function(params) {
+        let data = params.data;
+        params.api.applyTransaction({remove: [data]});
+    }
+    '''
+
     gb = GridOptionsBuilder.from_dataframe(dataproyectos)
     gb.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
-    gb.configure_selection(selection_mode="single", use_checkbox=True) # "multiple"
-    gb.configure_side_bar(filters_panel=False,columns_panel=False)
+    gb.configure_selection(selection_mode="single", use_checkbox=True)
+    gb.configure_side_bar(filters_panel=False, columns_panel=False)
     gridoptions = gb.build()
     
+    # Agrega la columna de botones con la función de borrar fila personalizada
+    gridoptions['columnDefs'].append(
+        {
+            'headerName': 'Borrar',
+            'field': 'Borrar',
+            'cellRenderer': 'agGrid.ButtonCellRenderer',
+            'cellRendererParams': {
+                'buttonInnerHTML': '<i class="far fa-trash-alt"></i>',
+                'buttonAction': delete_function,
+                'cssClass': 'my-delete-button'
+            }
+        }
+    )
+
     response = AgGrid(
         dataproyectos,
         height=350,
@@ -121,12 +143,13 @@ with st.container():
         enable_enterprise_modules=False,
         update_mode=GridUpdateMode.MODEL_CHANGED,
         data_return_mode=DataReturnMode.FILTERED_AND_SORTED,
-        fit_columns_on_grid_load=False,
+        fit_columns_on_grid_load=True,
         header_checkbox_selection_filtered_only=False,
         use_checkbox=True,
-        allow_unsafe_jscode=True,  # Asegúrate de permitir JavaScript inseguro para permitir el redimensionamiento automático de las columnas
+        allow_unsafe_jscode=True,  # Asegúrate de permitir JavaScript inseguro para permitir el uso de la función personalizada de borrar fila
         key="unique_key",
     )
+
     if response['selected_rows']:
         st.write(response['selected_rows'])
         try:
