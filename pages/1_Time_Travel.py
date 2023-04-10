@@ -12,6 +12,7 @@ from multiprocessing.dummy import Pool
 #from dateutil.relativedelta import relativedelta, MO
 from tqdm import tqdm
 import streamlit.components.v1 as components
+from contextlib import contextmanager
 
 #import warnings
 #warnings.filterwarnings("ignore")
@@ -23,6 +24,27 @@ password = st.secrets["password"]
 host     = st.secrets["host"]
 schema   = st.secrets["schema"]
 
+def apply_custom_class_to_column(column, class_name):
+    column = column.empty if column.empty else column
+    st.markdown(f'<div id="{class_name}">', unsafe_allow_html=True)
+    with column:
+        yield
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+def add_bg_from_url_front():
+    st.markdown(
+         f"""
+         <style>
+         .custom-column .stApp {{
+             background-image: url("https://s3.us-east-2.amazonaws.com/beyondcbre.co/Background-cuadro-front.png");
+             background-attachment: fixed;
+             background-size: cover
+         }}
+         </style>
+         """,
+         unsafe_allow_html=True
+     )
+    
 #@st.experimental_memo
 def get_list():
     db_connection = sql.connect(user=user, password=password, host=host, database=schema)
@@ -233,6 +255,7 @@ def add_bg_from_url_front():
      )
 #-----------------------------------------------------------------------------#
 
+add_bg_from_url_front()
 
 col1, col2 = st.columns(2)
 with col1: 
@@ -528,8 +551,8 @@ with col1:
     </html>
     """,height=600)
     
-with col2:
-    add_bg_from_url_front() 
+with apply_custom_class_to_column(col2, "custom-column"):
+    #add_bg_from_url_front() 
     dataproyectos   = get_list()
     nombre_cliente  = st.text_input('Nombre del cliente',value="")
     nombre_proyecto = st.multiselect('Nombre del proyecto',options=dataproyectos['project'].to_list())    
