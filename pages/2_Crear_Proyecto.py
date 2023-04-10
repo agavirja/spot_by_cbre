@@ -132,3 +132,6 @@ with col3:
             inputvar  = {'project':nombre_proyecto_registro.title(),'city':ciudad_registro,'address':direccion_oficina_registro}
             put_project(inputvar)
             st.success("Proyecto guardado exitosamente")
+            st.experimental_memo.clear()
+            st.experimental_rerun()  
+            st.success("Proyecto guardado exitosamente")
