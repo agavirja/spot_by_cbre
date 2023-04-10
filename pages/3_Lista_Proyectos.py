@@ -128,8 +128,10 @@ with st.container():
         key="unique_key",
     )
     if response['selected_rows']:
-        print(response['selected_rows'])
-            
+        st.write(response['selected_rows'])
+        try:
+            st.write(response['selected_rows']['Proyecto'])
+        except: pass
             
             
 
