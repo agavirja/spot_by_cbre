@@ -101,9 +101,9 @@ def prefijo(x):
 with st.container():
     st.markdown('<div style="background-color: #f2f2f2; border: 1px solid #fff; padding: 0px; margin-bottom: 10px;"><h1 style="margin: 0; font-size: 18px; text-align: center; color: #80BBAD;">Listo de proyectos</h1></div>', unsafe_allow_html=True)
     dataproyectos   = get_list()
-    variables       = [x for x in ['date','project','city','address','latitud','longitud','direccion_formato'] if x in dataproyectos]
+    variables       = [x for x in ['project','date','city','address','latitud','longitud','direccion_formato'] if x in dataproyectos]
     dataproyectos   = dataproyectos[variables]
-    dataproyectos.rename(columns={'date':'Fecha','project':'Proyecto','city':'Ciudad','address':'Dirección'},inplace=True)
+    dataproyectos.rename(columns={'project':'Proyecto','date':'Fecha','city':'Ciudad','address':'Dirección'},inplace=True)
     dataproyectos.columns = [x.title().strip().replace('_',' ') for x in list(dataproyectos)]
     dataproyectos.index = range(len(dataproyectos))
     #st.dataframe(data=dataproyectos)
@@ -128,8 +128,7 @@ with st.container():
         key="unique_key",
     )
     if response['selected_rows']:
-        for i in response['selected_rows']:
-            print(i['Proyecto'])
+        print(response['selected_rows']['Proyecto'])
             
             
             
