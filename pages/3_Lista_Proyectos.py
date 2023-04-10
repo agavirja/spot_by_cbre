@@ -128,7 +128,7 @@ with st.container():
         key="unique_key",
     )
     if response['selected_rows']:
-        print(response['selected_rows']['Proyecto'])
+        print(response['selected_rows'])
             
             
             
