@@ -65,16 +65,22 @@ def get_shp_file():
     gdf = gpd.read_file(r'data/barrios_colombia.shp')
     return gdf
 
-page_bg_img = '''
-<style>
-body {
-background-image: url("https://s3.us-east-2.amazonaws.com/beyondcbre.co/Background-georreferenciacion.png");
-background-size: cover;
-}
-</style>
-'''
+def add_bg_from_url():
+    st.markdown(
+         f"""
+         <style>
+         .stApp {{
+             background-image: url("https://s3.us-east-2.amazonaws.com/beyondcbre.co/Background-georreferenciacion.png");
+             background-attachment: fixed;
+             background-size: cover
+         }}
+         </style>
+         """,
+         unsafe_allow_html=True
+     )
 
-st.markdown(page_bg_img, unsafe_allow_html=True)
+add_bg_from_url() 
+
 
 
 #-----------------------------------------------------------------------------#
