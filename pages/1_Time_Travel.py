@@ -545,5 +545,9 @@ with col2:
                     id_project = dataproyectos[dataproyectos['project']==i]['id_project'].iloc[0]
                     analysis(data,id_project,email,nombre_cliente,nit)
             st.success("Se ejecutó exitosamente")
+            st.experimental_memo.clear()
+            st.experimental_rerun()
+            st.success("Se ejecutó exitosamente")
+
         
                            

@@ -11,6 +11,8 @@ import random
 from sqlalchemy import create_engine 
 from multiprocessing.dummy import Pool
 #from dateutil.relativedelta import relativedelta, MO
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode
+
 from tqdm import tqdm
 import warnings
 warnings.filterwarnings("ignore")
@@ -102,10 +104,32 @@ with st.container():
     variables       = [x for x in ['date','project','city','address','latitud','longitud','direccion_formato'] if x in dataproyectos]
     dataproyectos   = dataproyectos[variables]
     dataproyectos.rename(columns={'date':'Fecha','project':'Proyecto','city':'Ciudad','address':'Dirección'},inplace=True)
-    dataproyectos.columns = [x.title().strip() for x in list(dataproyectos)]
+    dataproyectos.columns = [x.title().strip().replace('_',' ') for x in list(dataproyectos)]
     dataproyectos.index = range(len(dataproyectos))
-    st.dataframe(data=dataproyectos)
+    #st.dataframe(data=dataproyectos)
     
+    gb = GridOptionsBuilder.from_dataframe(dataproyectos)
+    gb.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
+    gb.configure_selection(selection_mode="single", use_checkbox=True) # "multiple"
+    gb.configure_side_bar(filters_panel=False,columns_panel=False)
+    gridoptions = gb.build()
+    
+    response = AgGrid(
+        dataproyectos,
+        height=350,
+        gridOptions=gridoptions,
+        enable_enterprise_modules=False,
+        update_mode=GridUpdateMode.MODEL_CHANGED,
+        data_return_mode=DataReturnMode.FILTERED_AND_SORTED,
+        fit_columns_on_grid_load=True,
+        header_checkbox_selection_filtered_only=False,
+        use_checkbox=True)
+
+    if response['selected_rows']:
+        print(response['selected_rows']['project'])
+            
+            
+            
 
 st.write('---')
 st.text('Editar proyectos')
