@@ -26,11 +26,12 @@ schema   = st.secrets["schema"]
 
 def apply_custom_class_to_column(column, class_name):
     column = column.empty if column.empty else column
-    st.markdown(f'<div id="{class_name}">', unsafe_allow_html=True)
+    st.markdown(f'<div class="{class_name}">', unsafe_allow_html=True)
     with column:
         yield
     st.markdown('</div>', unsafe_allow_html=True)
-    
+
+# Función para agregar la imagen de fondo a una columna específica
 def add_bg_from_url_front():
     st.markdown(
          f"""
@@ -44,6 +45,9 @@ def add_bg_from_url_front():
          """,
          unsafe_allow_html=True
      )
+
+# Aplica la imagen de fondo a la columna específica
+add_bg_from_url_front()
     
 #@st.experimental_memo
 def get_list():
