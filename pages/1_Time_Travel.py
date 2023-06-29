@@ -77,8 +77,12 @@ def analysis(data,id_project,email,client,nit):
         inputvar = data.iloc[i].to_dict()
         futures.append(pool.apply_async(get_travel_time,args = (inputvar, )))
     for future in tqdm(futures):
-        try: datafinal = datafinal.append([future.get()])
-        except: pass
+        try: 
+            datafinal = pd.concat([datafinal,future.get()])
+        except:
+            try:
+                datafinal = datafinal.append([future.get()])
+            except: pass
     if datafinal.empty is False:
         datafinal.rename(columns={'timeValue':'tiempo_regreso_seg', 'timeInMin':'tiempo_regreso'},inplace=True)
         datafinal.drop(columns=['latitud','longitud'],inplace=True)
@@ -99,7 +103,8 @@ def analysis(data,id_project,email,client,nit):
     dataproject['user']   = email
     dataproject['client'] = client
     dataproject['office_point'] = 1
-    data = data.append(dataproject)
+    #data = data.append(dataproject)
+    data = pd.concat([data,dataproject])
 
     engine = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}/{schema}')
     data[varlist].to_sql('cbre_direcciones',engine,if_exists='append', index=False,chunksize=1000)
