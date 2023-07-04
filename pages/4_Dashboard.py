@@ -48,8 +48,12 @@ def get_timetravel(cliente,id_project):
     db_connection = sql.connect(user=user, password=password, host=host, database=schema)
     data          = pd.read_sql(f"SELECT * FROM proyect.cbre_direcciones WHERE {consulta} " , con=db_connection)
     if data.empty is False:
+        if 'latitud' in data:
+            data['latitud'] = pd.to_numeric(data['latitud'],errors='coerce')
+        if 'longitud' in data:
+            data['longitud'] = pd.to_numeric(data['longitud'],errors='coerce')
         if 'latitud' in data and 'longitud' in data:
-            idd  = (data['latitud'].notnull()) &  (data['longitud'].notnull())
+            idd  = (data['latitud'].notnull()) & (data['longitud'].notnull())
             data = data[idd]
     return data
 
@@ -118,6 +122,7 @@ col1, col2, col3 = st.columns([5,2,5])
 with col1:
     id_project      = data_project[data_project['project']==proyecto]['id_project'].iloc[0]
     data_traveltime = get_timetravel(cliente,id_project)
+    st.dataframe(data_traveltime)
     data_points     = data_traveltime[data_traveltime['office_point']==0]
     data_points["color"] = pd.cut(data_points["tiempo_regreso"], bins=[0,10,30,60,300], labels=["#012A2D", "#80BBAD", "#DBD99A","#D1785C"])
     data_points["label"] = pd.cut(data_points["tiempo_regreso"], bins=[0,10,30,60,300], labels=["0-10 min", "10-30 min", "30-60 min","60 > min"])
