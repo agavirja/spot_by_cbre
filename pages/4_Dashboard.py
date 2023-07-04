@@ -47,6 +47,10 @@ def get_timetravel(cliente,id_project):
         
     db_connection = sql.connect(user=user, password=password, host=host, database=schema)
     data          = pd.read_sql(f"SELECT * FROM proyect.cbre_direcciones WHERE {consulta} " , con=db_connection)
+    if data.empty is False:
+        if 'latitud' in data and 'longitud' in data:
+            idd  = (data['latitud'].notnull()) &  (data['longitud'].notnull())
+            data = data[idd]
     return data
 
 @st.experimental_memo
