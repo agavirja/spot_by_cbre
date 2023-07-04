@@ -59,8 +59,11 @@ def analysis(data,id_project,email,client,nit):
         inputvar = data.iloc[i].to_dict()
         futures.append(pool.apply_async(get_travel_time,args = (inputvar, )))
     for future in tqdm(futures):
-        try: datafinal = datafinal.append([future.get()])
-        except: pass
+        try: 
+            datafinal = pd.concat([datafinal,future.get()])
+        except:
+            try: datafinal = datafinal.append([future.get()])
+            except: pass
     if datafinal.empty is False:
         datafinal.rename(columns={'timeValue':'tiempo_ida_seg', 'timeInMin':'tiempo_ida'},inplace=True)
         data = data.merge(datafinal,on='idmatch',how='left',validate='1:1')
