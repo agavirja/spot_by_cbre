@@ -44,7 +44,7 @@ def get_timetravel(cliente,id_project):
         
     if consulta!="":
         consulta = consulta[4:]
-        
+    st.write(consulta)
     db_connection = sql.connect(user=user, password=password, host=host, database=schema)
     data          = pd.read_sql(f"SELECT * FROM proyect.cbre_direcciones WHERE {consulta} " , con=db_connection)
     if data.empty is False:
