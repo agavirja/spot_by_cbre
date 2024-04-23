@@ -2,8 +2,6 @@ altair
 folium
 geopandas
 matplotlib
-mysql_connector_repackaged
-mysql-connector-python
 pandas
 pytz
 requests
@@ -13,3 +11,7 @@ streamlit_folium
 streamlit_aggrid
 tqdm
 openpyxl
+mysql-connector-python
+mysql_connector_repackaged
+SQLAlchemy
+MySQL-python
