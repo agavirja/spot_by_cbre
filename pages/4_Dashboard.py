@@ -110,6 +110,16 @@ def getdatadownload():
 def convert_df(df):
     return df.to_csv(index=False).encode('utf-8')
 
+def download_excel(df):
+    excel_file = df.to_excel('data_compelta.xlsx', index=False)
+    with open('data_compelta.xlsx', 'rb') as f:
+        data = f.read()
+    st.download_button(
+        label="Descargar Data",
+        data=data,
+        file_name='data_compelta.xlsx',
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
     
 add_bg_from_url() 
 
@@ -122,14 +132,9 @@ with col3:
         
 with col4:
     dataexport = getdatadownload()
-    csv        = convert_df(dataexport)
-    st.download_button(
-        label="Descargar Data",
-        data=csv,
-        file_name='data_completa.csv',
-        mime='text/csv',
-    )
-        
+    if st.button('Descargar Excel'):
+        download_excel(dataexport)
+
         
 col1, col2, col3, col4 = st.columns(4)
 with col1:
