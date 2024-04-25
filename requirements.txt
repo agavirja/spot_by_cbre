@@ -14,4 +14,4 @@ openpyxl
 SQLAlchemy
 mysql_connector_repackaged
 mysql-connector-python
-_version
+MySQL_python
