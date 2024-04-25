@@ -107,16 +107,9 @@ def getdatadownload():
     dataresult.rename(columns={'scacodigo':'codigo_barrio'},inplace=True)
     return dataresult
     
-def download_excel(df):
-    excel_file = df.to_excel('data_compelta.xlsx', index=False)
-    with open('data_compelta.xlsx', 'rb') as f:
-        data = f.read()
-    st.download_button(
-        label="Descargar data",
-        data=data,
-        file_name='data_compelta.xlsx',
-        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
+def convert_df(df):
+    return df.to_csv(index=False).encode('utf-8')
+
     
 add_bg_from_url() 
 
@@ -128,9 +121,14 @@ with col3:
         st.experimental_rerun()  
         
 with col4:
-    if st.button('Descargar data'):
-        dataexport = getdatadownload()
-        download_excel(dataexport)
+    dataexport = getdatadownload()
+    csv        = convert_df(dataexport)
+    st.download_button(
+        label="Descargar Data",
+        data=csv,
+        file_name='data_completa.csv',
+        mime='text/csv',
+    )
         
         
 col1, col2, col3, col4 = st.columns(4)
