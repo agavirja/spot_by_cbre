@@ -90,8 +90,8 @@ def add_bg_from_url():
 @st.cache_data
 def getdatadownload():
     engine   = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}/{schema}')
-    data     = pd.read_sql_query("SELECT * FROM {schema}.cbre_direcciones;" , engine)
-    dataP    = pd.read_sql_query("SELECT * FROM {schema}.cbre_proyecto;" , engine)
+    data     = pd.read_sql_query(f"SELECT * FROM {schema}.cbre_direcciones;" , engine)
+    dataP    = pd.read_sql_query(f"SELECT * FROM {schema}.cbre_proyecto;" , engine)
     engine.dispose()
     
     dataP.rename(columns={'city':'project_city','address':'project_address','latitud':'project_latitude','longitud':'project_longitude','barriocatastral':'project_barrio'},inplace=True)
