@@ -11,6 +11,6 @@ streamlit_folium
 streamlit_aggrid
 tqdm
 openpyxl
-mysql-connector-python
-mysql_connector_repackaged
 SQLAlchemy
+mysql_connector_repackaged
+mysql-connector-python
