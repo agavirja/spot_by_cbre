@@ -3,6 +3,7 @@ import folium
 from streamlit_folium import st_folium
 import altair as alt
 import geopandas as gpd
+from sqlalchemy import create_engine
 
 import pandas as pd
 import mysql.connector as sql
@@ -86,14 +87,51 @@ def add_bg_from_url():
          unsafe_allow_html=True
      )
 
+@st.cache_data
+def getdatadownload():
+    engine   = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}/{schema}')
+    data     = pd.read_sql_query("SELECT * FROM {schema}.cbre_direcciones;" , engine)
+    dataP    = pd.read_sql_query("SELECT * FROM {schema}.cbre_proyecto;" , engine)
+    engine.dispose()
+    
+    dataP.rename(columns={'city':'project_city','address':'project_address','latitud':'project_latitude','longitud':'project_longitude','barriocatastral':'project_barrio'},inplace=True)
+    variables  = [x for x in ['id', 'project', 'project_city', 'project_address', 'project_latitude', 'project_longitude', 'project_barrio'] if x in dataP]
+    dataP      = dataP[variables]
+    data.drop(columns=['id'],inplace=True)
+    dataresult = data.merge(dataP,left_on='id_proyecto',right_on='id',how='left',validate='m:1')
+    
+    idd        = dataresult['user'].isin(['agavirja@gmail.com'])
+    dataresult = dataresult[~idd]
+    dataresult = dataresult[dataresult['office_point']==0]
+    dataresult.drop(columns=['id'],inplace=True)
+    dataresult.rename(columns={'scacodigo':'codigo_barrio'},inplace=True)
+    return dataresult
+    
+def download_excel(df):
+    excel_file = df.to_excel('data_compelta.xlsx', index=False)
+    with open('data_compelta.xlsx', 'rb') as f:
+        data = f.read()
+    st.download_button(
+        label="Descargar data",
+        data=data,
+        file_name='data_compelta.xlsx',
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    
 add_bg_from_url() 
 
 #-----------------------------------------------------------------------------#
 col1, col2, col3, col4 = st.columns(4)
-with col4:
+with col3:
     if st.button('Refrescar información'):
         st.experimental_memo.clear()
         st.experimental_rerun()  
+        
+with col4:
+    if st.button('Descargar data'):
+        dataexport = getdatadownload()
+        download_excel(dataexport)
+        
         
 col1, col2, col3, col4 = st.columns(4)
 with col1:
