@@ -17,14 +17,14 @@ password = st.secrets["password"]
 host     = st.secrets["host"]
 schema   = st.secrets["schema"]
 
-@st.experimental_memo
+@st.cache_data(show_spinner=False)
 def get_list():
     db_connection = sql.connect(user=user, password=password, host=host, database=schema)
     data          = pd.read_sql("SELECT id as id_project,project,city,address FROM proyect.cbre_proyecto  WHERE activo=1" , con=db_connection)
     data          = data.sort_values(by='project',ascending=True)
     return data
 
-@st.experimental_memo
+@st.cache_data(show_spinner=False)
 def get_clients(city):
     consulta = "office_point=1"
     if city!="":
@@ -35,7 +35,7 @@ def get_clients(city):
     data          = data.sort_values(by='client',ascending=True)
     return data
 
-@st.experimental_memo
+@st.cache_data(show_spinner=False)
 def get_timetravel(cliente,id_project):
     consulta = ""
     if cliente!="" and cliente is not None:
@@ -57,7 +57,7 @@ def get_timetravel(cliente,id_project):
             data = data[idd]
     return data
 
-@st.experimental_memo
+@st.cache_data(show_spinner=False)
 def get_timetravel_by_client(cliente):
     consulta = ""
     if cliente!="" and cliente is not None:
@@ -67,9 +67,9 @@ def get_timetravel_by_client(cliente):
     data          = pd.read_sql(f"SELECT id_proyecto as id_project ,tiempo_regreso,tiempo_ida FROM proyect.cbre_direcciones WHERE {consulta}  AND office_point=0" , con=db_connection)
     return data
 
-@st.experimental_memo
+#@st.cache_data(show_spinner=False)
 def get_shp_file():
-    #gdf = gpd.read_file(r'D:\Dropbox\Empresa\Consultoria Data\CBRE\PROYECTO DIRECCIONES\barrios colombia\barrios_colombia.shp')
+    #gdf = gpd.read_file(r'D:\Dropbox\Empresa\CBRE\PROYECTO_DIRECCIONES\app_streamlit_online_version\data\barrios_colombia.shp')
     gdf = gpd.read_file(r'data/barrios_colombia.shp')
     return gdf
 
@@ -87,7 +87,7 @@ def add_bg_from_url():
          unsafe_allow_html=True
      )
 
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def getdatadownload():
     engine   = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}/{schema}')
     data     = pd.read_sql_query(f"SELECT * FROM {schema}.cbre_direcciones;" , engine)
@@ -120,6 +120,13 @@ def download_excel(df):
         file_name='data_compelta.xlsx',
         mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
+    #csv        = convert_df(dataexport)
+    #st.download_button(
+    #    label="Descargar Data",
+    #    data=csv,
+    #    file_name='data_completa.csv',
+    #    mime='text/csv',
+    #)
     
 add_bg_from_url() 
 
@@ -127,8 +134,8 @@ add_bg_from_url()
 col1, col2, col3, col4 = st.columns(4)
 with col3:
     if st.button('Refrescar información'):
-        st.experimental_memo.clear()
-        st.experimental_rerun()  
+        st.cache_data.clear()
+        st.rerun()  
         
 with col4:
     dataexport = getdatadownload()
@@ -189,9 +196,6 @@ with col1:
         
     st_map = st_folium(m,height=500)
     
-
-
-
 with col2:
     # Direcciones unicas
     direcciones_unicas = len(data_points['address'].unique())
