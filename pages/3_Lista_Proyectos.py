@@ -23,6 +23,7 @@ user     = st.secrets["user"]
 password = st.secrets["password"]
 host     = st.secrets["host"]
 schema   = st.secrets["schema"]
+api_key  = st.secrets['API_KEY']
 
 #@st.experimental_memo
 def get_list():
@@ -157,7 +158,7 @@ with st.container():
                         address    = formato_direccion(direccion)
                         city       = dataproyectos[dataproyectos['Proyecto']==nombre_proyecto]['Ciudad'].iloc[0]
                         direccion  = f'{address},{city},Colombia'
-                        response   = requests.get(f'https://maps.googleapis.com/maps/api/geocode/json?address={direccion}&key=AIzaSyAgT26vVoJnpjwmkoNaDl1Aj3NezOlSpKs').json()
+                        response   = requests.get(f'https://maps.googleapis.com/maps/api/geocode/json?address={direccion}&key={api_key}').json()
                         latitud           = response['results'][0]["geometry"]["location"]['lat']
                         longitud          = response['results'][0]["geometry"]["location"]['lng']
                         direccion_formato = response['results'][0]["formatted_address"]

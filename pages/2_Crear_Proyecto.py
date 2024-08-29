@@ -17,7 +17,7 @@ user     = st.secrets["user"]
 password = st.secrets["password"]
 host     = st.secrets["host"]
 schema   = st.secrets["schema"]
-
+api_key  = st.secrets['API_KEY']
 
 def put_project(inputvar):
     #inputvar      = {'project':'WEWORK 300','city':'Bogota','address':'Carrera 11b # 99-25'}
@@ -30,7 +30,7 @@ def put_project(inputvar):
         address    = formato_direccion(inputvar['address'])
         city       = inputvar['city'].lower()   
         direccion  = f'{address},{city},Colombia'
-        response   = requests.get(f'https://maps.googleapis.com/maps/api/geocode/json?address={direccion}&key=AIzaSyAgT26vVoJnpjwmkoNaDl1Aj3NezOlSpKs').json()
+        response   = requests.get(f'https://maps.googleapis.com/maps/api/geocode/json?address={direccion}&key={api_key}').json()
         colorlist  = ['#012A2D','#80BBAD','#1F3866','#D1785C','#17E88F','#003F2D','#778F9C','#DBD99A','#CBCDCB']
         
         latitud         = response['results'][0]["geometry"]["location"]['lat']
