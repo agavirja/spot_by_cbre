@@ -53,35 +53,48 @@ def main():
         id_project      = data_project[data_project['project']==proyecto]['id_project'].iloc[0]
         data_traveltime = get_timetravel(cliente,id_project)
         data_points     = data_traveltime[data_traveltime['office_point']==0]
-        data_points["color"] = pd.cut(data_points["tiempo_regreso"], bins=[0,10,30,60,300], labels=["#012A2D", "#80BBAD", "#DBD99A","#D1785C"])
-        data_points["label"] = pd.cut(data_points["tiempo_regreso"], bins=[0,10,30,60,300], labels=["0-10 min", "10-30 min", "30-60 min","60 > min"])
-        data_points["order"] = pd.cut(data_points["tiempo_regreso"], bins=[0,10,30,60,300], labels=["1", "2", "3","4"])
         data_points          = data_points[(data_points['latitud'].notnull()) & (data_points['longitud'].notnull())]
-        data_points          = data_points[data_points[tipo_analisis]>=0]
-        data_point_office = data_traveltime[data_traveltime['office_point']==1]
+        # Verificar que la columna existe antes de usarla
+        if tipo_analisis in data_points.columns:
+            data_points          = data_points[data_points[tipo_analisis]>=0]
+            data_points["color"] = pd.cut(data_points[tipo_analisis], bins=[0,10,30,60,300], labels=["#012A2D", "#80BBAD", "#DBD99A","#D1785C"])
+            data_points["label"] = pd.cut(data_points[tipo_analisis], bins=[0,10,30,60,300], labels=["0-10 min", "10-30 min", "30-60 min","60 > min"])
+            data_points["order"] = pd.cut(data_points[tipo_analisis], bins=[0,10,30,60,300], labels=["1", "2", "3","4"])
+        else:
+            # Si la columna no existe, crear un DataFrame vacío para evitar errores
+            data_points = pd.DataFrame()
+        data_point_office = data_traveltime[data_traveltime['office_point']==1] if not data_traveltime.empty and 'office_point' in data_traveltime.columns else pd.DataFrame()
         
-        m = folium.Map(location=[data_traveltime["latitud"].mean(), data_traveltime["longitud"].mean()], zoom_start=11,tiles="cartodbpositron")
+        # Calcular ubicación del mapa
+        if not data_traveltime.empty and 'latitud' in data_traveltime.columns and 'longitud' in data_traveltime.columns:
+            map_location = [data_traveltime["latitud"].mean(), data_traveltime["longitud"].mean()]
+        else:
+            map_location = [4.6097, -74.0817]  # Coordenadas por defecto de Bogotá
+        m = folium.Map(location=map_location, zoom_start=11,tiles="cartodbpositron")
         
         for index, row in data_points.iterrows():
-            folium.CircleMarker(location=[row["latitud"], row["longitud"]],
-                                radius=4,
-                                color=row["color"],
+            popup_value = row.get(tipo_analisis, 'N/A')
+            if 'latitud' in row and 'longitud' in row:
+                folium.CircleMarker(location=[row["latitud"], row["longitud"]],
+                                    radius=4,
+                                    color=row.get("color", "#012A2D"),
+                                    fill=True,
+                                    #fill_color=row["color"],
+                                    popup=popup_value).add_to(m)
+        
+        if not data_point_office.empty and 'latitud' in data_point_office.columns and 'longitud' in data_point_office.columns:
+            folium.CircleMarker(location=[data_point_office["latitud"].iloc[0], data_point_office["longitud"].iloc[0]],
+                                radius=6,
+                                color="#800080",
                                 fill=True,
                                 #fill_color=row["color"],
-                                popup=row["tiempo_regreso"]).add_to(m)
-        
-        folium.CircleMarker(location=[data_point_office["latitud"].iloc[0], data_point_office["longitud"].iloc[0]],
-                            radius=6,
-                            color="#800080",
-                            fill=True,
-                            #fill_color=row["color"],
-                            ).add_to(m)
+                                ).add_to(m)
             
         st_map = st_folium(m,height=500)
         
     with col2:
         # Direcciones unicas
-        direcciones_unicas = len(data_points['address'].unique())
+        direcciones_unicas = len(data_points['address'].unique()) if not data_points.empty and 'address' in data_points.columns else 0
         st.markdown(f"""
         <div style="text-align: center; color: black; font-size: 24px; font-family: 'Segoe UI';font-weight:bold">
             {direcciones_unicas}
@@ -98,7 +111,7 @@ def main():
         """, unsafe_allow_html=True) 
         
         # Barrios unicas
-        barrios_unicos = len(data_points['scacodigo'].unique())
+        barrios_unicos = len(data_points['scacodigo'].unique()) if not data_points.empty and 'scacodigo' in data_points.columns else 0
         st.markdown(f"""
         <div style="text-align: center; color: black; font-size: 24px; font-family: 'Segoe UI';font-weight:bold">
             {barrios_unicos}
@@ -115,7 +128,7 @@ def main():
         """, unsafe_allow_html=True) 
         
         # Tiempo de viaje de ida promedio
-        tiempo_promedio_ida = data_points['tiempo_ida'].median()
+        tiempo_promedio_ida = data_points['tiempo_ida'].median() if not data_points.empty and 'tiempo_ida' in data_points.columns else 0
         tiempo_promedio_ida = format(tiempo_promedio_ida, '.2f')
         st.markdown(f"""
         <div style="text-align: center; color: black; font-size: 24px; font-family: 'Segoe UI';font-weight:bold">
@@ -133,7 +146,7 @@ def main():
         """, unsafe_allow_html=True)     
         
         # Tiempo de viaje de regreso promedio
-        tiempo_promedio_regreso = data_points['tiempo_regreso'].median()
+        tiempo_promedio_regreso = data_points['tiempo_regreso'].median() if not data_points.empty and 'tiempo_regreso' in data_points.columns else 0
         tiempo_promedio_regreso = format(tiempo_promedio_regreso, '.2f')
         st.markdown(f"""
         <div style="text-align: center; color: black; font-size: 24px; font-family: 'Segoe UI';font-weight:bold">
@@ -152,19 +165,27 @@ def main():
         
     with col3:
         data_shp      = get_shp_file()
-        data_espacial = data_points[['scacodigo',tipo_analisis]]
-        data_espacial = data_espacial.groupby('scacodigo')[tipo_analisis].median().reset_index()
-        data_shp = data_shp.merge(data_espacial,on='scacodigo',how='left',validate='1:1')
-        data_shp = data_shp[data_shp[tipo_analisis].notnull()]
+        if not data_points.empty and tipo_analisis in data_points.columns and 'scacodigo' in data_points.columns:
+            data_espacial = data_points[['scacodigo',tipo_analisis]]
+            data_espacial = data_espacial.groupby('scacodigo')[tipo_analisis].median().reset_index()
+            data_shp = data_shp.merge(data_espacial,on='scacodigo',how='left',validate='1:1')
+            data_shp = data_shp[data_shp[tipo_analisis].notnull()]
+        else:
+            data_shp = pd.DataFrame()
         colors   = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff']
         
-        map1 = folium.Map(location=[data_points['latitud'].mean(), data_points['longitud'].mean()], zoom_start=11,tiles="cartodbpositron")
+        # Calcular ubicación del mapa
+        if not data_points.empty and 'latitud' in data_points.columns and 'longitud' in data_points.columns:
+            map_location = [data_points['latitud'].mean(), data_points['longitud'].mean()]
+        else:
+            map_location = [4.6097, -74.0817]  # Coordenadas por defecto de Bogotá
+        map1 = folium.Map(location=map_location, zoom_start=11,tiles="cartodbpositron")
 
         if not data_shp.empty:
             datashow = data_shp.copy()
             datashow.drop(columns=['geometry'],inplace=True)
             datashow = pd.DataFrame(datashow)
-            geojson  = data2geopandas(datashow)
+            geojson  = data2geopandas(datashow, tipo_analisis)
             popup    = folium.GeoJsonPopup(
                 fields=["popup"],
                 aliases=[""],
@@ -184,8 +205,11 @@ def main():
         """, unsafe_allow_html=True)  
         st.markdown("<div style='border-top: 2px solid green;'> </div>", unsafe_allow_html=True)
      
-        v = data_points.groupby(['label','color','order'])['id'].count().reset_index()
-        v = v[v['id']>0]
+        if not data_points.empty and all(col in data_points.columns for col in ['label','color','order','id']):
+            v = data_points.groupby(['label','color','order'])['id'].count().reset_index()
+            v = v[v['id']>0]
+        else:
+            v = pd.DataFrame()
         if v.empty is False:
             v = v.sort_values(by='order',ascending=True)
         
@@ -356,21 +380,24 @@ def download_excel(df):
     #)
 
 @st.cache_data(show_spinner=False)
-def data2geopandas(data):
+def data2geopandas(data, tipo_analisis='tiempo_regreso'):
     geojson   = pd.DataFrame().to_json()
     if 'geometry' in data: 
         data = data[data['geometry'].notnull()]
     if not data.empty:
+        # Verificar que la columna existe antes de usarla
+        if tipo_analisis not in data.columns:
+            return geojson
         data['geometry'] = gpd.GeoSeries.from_wkt(data['wkt'])
         data             = gpd.GeoDataFrame(data, geometry='geometry')
-        data['color']    = pd.cut(data["tiempo_regreso"], bins=[0,10,30,60,300], labels=["#012A2D", "#80BBAD", "#DBD99A","#D1785C"])
+        data['color']    = pd.cut(data[tipo_analisis], bins=[0,10,30,60,300], labels=["#012A2D", "#80BBAD", "#DBD99A","#D1785C"])
         data['popup']    = None
         data.index       = range(len(data))
         for idd,items in data.iterrows():
             popuptext = ""
             try:    popuptext += f"""<b>Barrio:</b> {items['scanombre']}<br>"""
             except: pass
-            try:    popuptext += f"""<b>Tiempo:</b> {items['tiempo_regreso']:,.1f} min<br>"""
+            try:    popuptext += f"""<b>Tiempo:</b> {items[tipo_analisis]:,.1f} min<br>"""
             except: pass   
             popup_content =  f'''
             <!DOCTYPE html>
