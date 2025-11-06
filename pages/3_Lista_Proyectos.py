@@ -5,7 +5,7 @@ import copy
 import pandas as pd
 import requests
 import pytz
-import mysql.connector as sql
+import pymysql as sql
 import datetime
 import random
 from sqlalchemy import create_engine 

@@ -4,7 +4,7 @@ import re
 import pandas as pd
 import requests
 import pytz
-import mysql.connector as sql
+import pymysql as sql
 import datetime
 import random
 import streamlit.components.v1 as components

@@ -6,7 +6,7 @@ import geopandas as gpd
 from sqlalchemy import create_engine
 
 import pandas as pd
-import mysql.connector as sql
+import pymysql as sql
 
 # MAPAS:  https://medium.com/datasciencearth/map-visualization-with-folium-d1403771717
 
@@ -340,7 +340,7 @@ def add_bg_from_url():
 
 @st.cache_data(show_spinner=False)
 def getdatadownload():
-    engine   = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}/{schema}')
+    engine   = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{schema}')
     data     = pd.read_sql_query(f"SELECT * FROM {schema}.cbre_direcciones;" , engine)
     dataP    = pd.read_sql_query(f"SELECT * FROM {schema}.cbre_proyecto;" , engine)
     engine.dispose()

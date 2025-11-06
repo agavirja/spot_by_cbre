@@ -5,7 +5,7 @@ import copy
 import pandas as pd
 import requests
 import pytz
-import mysql.connector as sql
+import pymysql as sql
 import datetime
 import openpyxl
 from sqlalchemy import create_engine 
@@ -110,7 +110,7 @@ def analysis(data,id_project,email,client,nit):
     #data = data.append(dataproject)
     data = pd.concat([data,dataproject])
 
-    engine = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}/{schema}')
+    engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{schema}')
     data[varlist].to_sql('cbre_direcciones',engine,if_exists='append', index=False,chunksize=1000)
     
     # Actualizar data PowerBI
